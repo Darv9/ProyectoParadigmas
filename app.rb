@@ -3,7 +3,7 @@ require 'sinatra/cross_origin'
 require 'net/http'
 require 'json'
 
-# Configura tu API key (idealmente desde una variable de entorno)
+# Configura el API KEY
 api_key = ENV['OPENAI_API_KEY'] || 'sk-_lcM1OOKDvCRvdXULhIspkzMf_LiMmJwJkg9PbbcIBT3BlbkFJ4QU8KjqtDXbN_NvYg7I-baNGzxH-qFPjjTwyBhCnEA'
 
 # Configuración de Sinatra
@@ -11,7 +11,7 @@ configure do
   enable :sessions
   register Sinatra::CrossOrigin
   enable :cross_origin
-  set :views, 'views'  # Configura la carpeta para las vistas ERB
+  set :views, 'views' 
 end
 
 before do
