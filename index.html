@@ -1,29 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Chat</title>
-    <script>
-        async function sendMessage() {
-            const message = document.getElementById('message').value;
-            try {
-                const response = await fetch('http://localhost:4567/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: message })
-                });
-                const data = await response.json();
-                document.getElementById('response').innerText = data.response;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
 </head>
 <body>
-    <input type="text" id="message" />
-    <button onclick="sendMessage()">Send</button>
-    <p id="response"></p>
+  <h1>Chatbot de Salud Mental</h1>
+  <form id="chat-form">
+    <input type="text" id="message" placeholder="Escribe tu mensaje" required>
+    <button type="submit">Enviar</button>
+  </form>
+  <div id="response"></div>
+
+  <script>
+    document.getElementById('chat-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const message = document.getElementById('message').value;
+
+      fetch('/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('response').innerText = data.response;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat con Asistente de Salud Mental</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e0f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    .chat-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h2 {
+      font-size: 1.5em;
+      color: #00796b;
+      margin-bottom: 20px;
+    }
+    .messages {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+    .message.assistant {
+      background: #e8f5e9;
+      color: #1b5e20;
+      align-self: flex-start;
+    }
+    .message.user {
+      background: #bbdefb;
+      color: #0d47a1;
+      align-self: flex-end;
+    }
+    .input-container {
+      display: flex;
+      align-items: center;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      margin-right: 10px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      font-size: 1em;
+    }
+    button {
+      padding: 12px 25px;
+      border-radius: 20px;
+      border: none;
+      background-color: #00796b;
+      color: white;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <h2>Chat con Asistente de Salud Mental</h2>
+  <div class="messages" id="messages">
+    <% if defined?(response) && response %>
+      <div class="message assistant"><%= response %></div>
+    <% end %>
+  </div>
+  <div class="input-container">
+    <input type="text" id="userMessage" placeholder="Escribe tu mensaje..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+</div>
+
+<script>
+  function sendMessage() {
+    const userMessage = document.getElementById('userMessage').value;
+    const messagesContainer = document.getElementById('messages');
+    
+    if (userMessage.trim() === '') return; // No enviar si el mensaje está vacío
+
+    // Mostrar el mensaje del usuario en la interfaz
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'message user';
+    userMessageDiv.innerText = userMessage;
+    messagesContainer.appendChild(userMessageDiv);
+
+    // Enviar el mensaje al servidor
+    fetch('/send_message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: userMessage }),
+    })
+    .then(response => response.text())
+    .then(data => {
+      // Mostrar la respuesta del asistente en la interfaz
+      const assistantMessageDiv = document.createElement('div');
+      assistantMessageDiv.className = 'message assistant';
+      assistantMessageDiv.innerText = data;
+      messagesContainer.appendChild(assistantMessageDiv);
+
+      // Desplazar hacia abajo al mostrar el nuevo mensaje
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+
+    // Limpiar el campo de entrada de texto
+    document.getElementById('userMessage').value = '';
+  }
+
+  function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); 
+      sendMessage();
+    }
+  }
+</script>
+
+</body>
+</html>
