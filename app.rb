@@ -30,13 +30,18 @@ end
 post '/send_message' do
   user_message = JSON.parse(request.body.read)['message']
 
-  # Inicializa la conversación si es la primera vez
-  session[:messages] ||= [
-    { role: 'system', content: 'You are a supportive assistant trained to provide helpful advice and information about mental health and emotional well-being. You should offer empathetic and understanding responses.' }
-  ]
+  # Verifica si el mensaje del usuario está relacionado con salud mental
+  if relevant_message?(user_message)
+    # Inicializa la conversación si es la primera vez
+    session[:messages] ||= [
+      { role: 'system', content: 'You are a supportive assistant trained to provide advice and information exclusively about mental health and emotional well-being. Please ensure that all responses strictly adhere to this topic and do not address other subjects.' }
+    ]
 
-  # Envía el mensaje y obtiene la respuesta
-  response_text = send_message(api_key, user_message, session[:messages])
+    # Envía el mensaje y obtiene la respuesta
+    response_text = send_message(api_key, user_message, session[:messages])
+  else
+    response_text = "Lo siento, solo puedo hablar sobre salud mental y bienestar emocional. Por favor, haz una pregunta relacionada con estos temas."
+  end
 
   # Retorna la respuesta en formato JSON
   content_type :json
@@ -71,14 +76,33 @@ def send_message(api_key, user_message, messages)
     # Manejo de errores
     if response_body['choices']
       # Añade la respuesta del asistente a la conversación
-      messages << { role: 'assistant', content: response_body['choices'][0]['message']['content'] }
-      response_body['choices'][0]['message']['content']
+      assistant_message = response_body['choices'][0]['message']['content']
+      
+      # Verifica si la respuesta está en el tema
+      if relevant_response?(assistant_message)
+        messages << { role: 'assistant', content: assistant_message }
+        assistant_message
+      else
+        # Mensaje de error o advertencia si la respuesta no es relevante
+        "Error: La respuesta no está relacionada con salud mental o bienestar emocional."
+      end
     else
       "Error en la respuesta de la API: #{response_body}"
     end
   rescue => e
     "Error al comunicarse con la API: #{e.message}"
   end
+end
+
+# Función para verificar si el mensaje está relacionado con salud mental
+def relevant_message?(message)
+  keywords = ["salud mental", "bienestar emocional", "ansiedad", "depresión", "estrés", "autoayuda"]
+  keywords.any? { |keyword| message.downcase.include?(keyword) }
+end
+
+# Función para verificar si la respuesta es relevante para salud mental
+def relevant_response?(message)
+  relevant_message?(message)
 end
 
 # Manejo de la solicitud OPTIONS para manejar preflight requests de CORS
