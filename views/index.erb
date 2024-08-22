@@ -82,9 +82,7 @@
 <div class="chat-container">
   <h2>Chat con Asistente de Salud Mental</h2>
   <div class="messages" id="messages">
-    <% if defined?(response) && response %>
-      <div class="message assistant"><%= response %></div>
-    <% end %>
+    <!-- Los mensajes serán añadidos dinámicamente aquí -->
   </div>
   <div class="input-container">
     <input type="text" id="userMessage" placeholder="Escribe tu mensaje..." onkeypress="handleKeyPress(event)">
@@ -113,16 +111,19 @@
       },
       body: JSON.stringify({ message: userMessage }),
     })
-    .then(response => response.text())
+    .then(response => response.json())
     .then(data => {
       // Mostrar la respuesta del asistente en la interfaz
       const assistantMessageDiv = document.createElement('div');
       assistantMessageDiv.className = 'message assistant';
-      assistantMessageDiv.innerText = data;
+      assistantMessageDiv.innerText = data.response; // Asegúrate de que `data.response` existe
       messagesContainer.appendChild(assistantMessageDiv);
 
       // Desplazar hacia abajo al mostrar el nuevo mensaje
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    })
+    .catch(error => {
+      console.error('Error:', error);
     });
 
     // Limpiar el campo de entrada de texto
