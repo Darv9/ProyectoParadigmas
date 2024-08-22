@@ -32,7 +32,7 @@ post '/send_message' do
 
   # Inicializa la conversación si es la primera vez
   session[:messages] ||= [
-    { role: 'system', content: 'You are a helpful assistant that only discusses topics related to football (soccer).' }
+    { role: 'system', content: 'You are a supportive assistant trained to provide helpful advice and information about mental health and emotional well-being. You should offer empathetic and understanding responses.' }
   ]
 
   # Envía el mensaje y obtiene la respuesta
